@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 export default function Todos() {
   const [todos, setTodos] = useState([]);
@@ -16,21 +17,33 @@ export default function Todos() {
   const [filterCategory, setFilterCategory] = useState('Toutes');
   const [filterStatus, setFilterStatus] = useState('Toutes');
 
+  const navigate = useNavigate();
   const token = localStorage.getItem('token');
   const authHeader = { headers: { Authorization: `Bearer ${token}` } };
 
-  const fetchTodos = async () => {
-    try {
-      const res = await axios.get('http://localhost:5000/api/todos', authHeader);
-      setTodos(res.data);
-    } catch (err) {
-      setError('Impossible de charger les tâches.');
-    }
-  };
-
+  // Charger les tâches au chargement du composant
   useEffect(() => {
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
+    const fetchTodos = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/todos', authHeader);
+        setTodos(res.data);
+      } catch (err) {
+        if (err.response?.status === 401 || err.response?.status === 403) {
+          localStorage.removeItem('token');
+          navigate('/login');
+        } else {
+          setError('Impossible de charger les tâches.');
+        }
+      }
+    };
+
     fetchTodos();
-  }, []);
+  }, [navigate, token]);
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -44,6 +57,7 @@ export default function Todos() {
       setTodos([...todos, res.data]);
       setText('');
       setCategory('Personnel');
+      setError('');
     } catch (err) {
       setError('Erreur lors de l’ajout de la tâche.');
     }
@@ -64,7 +78,7 @@ export default function Todos() {
 
   const startEditing = (todo) => {
     setEditingId(todo._id);
-    setEditText(todo.text);
+    setEditText(todo.text || todo.title || '');
   };
 
   const handleSaveEdit = async (id) => {
@@ -93,7 +107,8 @@ export default function Todos() {
   };
 
   const filteredTodos = todos.filter((todo) => {
-    const matchesSearch = todo.text.toLowerCase().includes(search.toLowerCase());
+    const todoText = todo.text || todo.title || '';
+    const matchesSearch = todoText.toLowerCase().includes(search.toLowerCase());
     const matchesCategory =
       filterCategory === 'Toutes' || todo.category === filterCategory;
     const matchesStatus =
@@ -107,8 +122,8 @@ export default function Todos() {
   });
 
   return (
-    <div className="space-y-6 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm transition-colors duration-200">
-      <h2 className="text-2xl font-bold text-slate-900 dark:text-white transition-colors">
+   <div className="space-y-8 text-slate-700 dark:text-slate-300">
+    <h2 className="text-2xl font-bold !text-indigo-600 dark:!text-indigo-400 hover:opacity-80 transition-opacity">
         Gestion des Tâches
       </h2>
 
@@ -234,7 +249,7 @@ export default function Todos() {
                         : 'text-slate-800 dark:text-slate-100'
                     }`}
                   >
-                    {todo.text}
+                    {todo.text || todo.title}
                   </span>
                 </div>
 
