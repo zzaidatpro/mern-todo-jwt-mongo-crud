@@ -31,12 +31,13 @@ test.describe('--- Tests E2E : Authentification et Gestion des Todos ---', () =>
       
       // Cliquer et attendre la réponse de l'API backend
       await Promise.all([
-        page.waitForResponse(response => response.url().includes('/api/') && [200, 201].includes(response.status()),  // 200 201
-        {timeout:10000}
-      ),
+        page.waitForResponse(
+          response => response.url().includes('/api/') && [200, 201].includes(response.status()),
+          { timeout: 10000 } 
+        ),
         page.click('button[type="submit"]')
       ]);
-    }
+              }
 
     // 3. Vérifier l'accès final à la page /todos
     await expect(page).toHaveURL('http://localhost:5173/todos');
