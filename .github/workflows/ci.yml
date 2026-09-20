@@ -1,0 +1,75 @@
+name: Pipeline CI/CD - GreenForest
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  # ----------------------------------------------------
+  # JOB 1 : Tests Backend avec Jest & MongoDB In-Memory
+  # ----------------------------------------------------
+  backend-tests:
+    name: 🧪 Tests Backend (Jest)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupérer le code source
+        uses: actions/checkout@v4
+
+      - name: Configurer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Installer les dépendances du Backend
+        run: npm ci
+        working-directory: backend
+
+      - name: Exécuter les tests Jest
+        run: npm test
+        working-directory: backend
+        env:
+          JWT_SECRET: secret_de_test_ci
+
+  # ----------------------------------------------------
+  # JOB 2 : Tests E2E avec Playwright (Multi-navigateurs)
+  # ----------------------------------------------------
+  e2e-tests:
+    name: 🎭 Tests E2E (Playwright)
+    needs: backend-tests # S'exécute uniquement si le job Backend réussit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupérer le code source
+        uses: actions/checkout@v4
+
+      - name: Configurer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Installer les dépendances du projet
+        run: |
+          npm ci --prefix backend
+          npm ci --prefix frontend
+
+      - name: Installer Playwright et ses navigateurs
+        run: npx playwright install --with-deps
+
+      - name: Exécuter les tests Playwright
+        run: npx playwright test
+        env:
+          CI: true
+          JWT_SECRET: secret_de_test_ci
+
+      - name: Archiver le rapport Playwright en cas d'échec
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

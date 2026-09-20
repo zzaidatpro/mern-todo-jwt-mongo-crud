@@ -1,12 +1,8 @@
-import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-import authMiddleware from '../middleware/auth.js';
 
-const router = express.Router();
-
-router.post('/register', async (req, res) => {
+export const register = async (req, res) => {
   try {
     const { email, password } = req.body;
     let user = await User.findOne({ email });
@@ -20,9 +16,9 @@ router.post('/register', async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: 'Erreur serveur.' });
   }
-});
+};
 
-router.post('/login', async (req, res) => {
+export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
@@ -36,19 +32,19 @@ router.post('/login', async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: 'Erreur serveur.' });
   }
+};
 
-
-});
-
-router.get('/me', authMiddleware, async (req, res) => {
+export const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
     if (!user) {
       return res.status(404).json({ message: 'Utilisateur non trouvé' });
-               }res.json(user);
-      } catch (err) {
-    res.status(500).json({ message: 'Erreur serveur lors de la récupération du profil', error: err.message });
+    }
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ 
+      message: 'Erreur serveur lors de la récupération du profil', 
+      error: err.message 
+    });
   }
-});
-
-export default router;
+};

@@ -7,6 +7,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,7 +22,7 @@ export default function Login() {
       const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('userEmail', email);
-      navigate('/');
+      navigate('/todos');
     } catch (err) {
       setError(err.response?.data?.message || 'Erreur de connexion');
     }

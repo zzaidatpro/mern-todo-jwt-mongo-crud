@@ -1,0 +1,13 @@
+{
+  "roles": {
+    "user": {
+      "permissions": ["read:todos", "create:todos", "update:own_todos", "delete:own_todos"]
+    },
+    "admin": {
+      "permissions": [
+        "read:todos", "create:todos", "update:own_todos", "delete:own_todos",
+        "read:users", "delete:users", "access:admin_panel"
+      ]
+    }
+  }
+}
