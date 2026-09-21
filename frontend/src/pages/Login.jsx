@@ -42,11 +42,13 @@ export default function Login() {
 
       <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-4">
         <div>
-          <label className="block text-left text-[8px] sm:text-sm font-normal text-slate-700 dark:text-slate-300 mb-0.5 sm:mb-1">
+          <label htmlFor="email" className="block text-left text-[8px] sm:text-sm font-normal text-slate-700 dark:text-slate-300 mb-0.5 sm:mb-1">
             Email :
           </label>
           <input
-            type="email"
+            id='email'
+            type='email'
+            name='email'
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="exemple@email.com"
@@ -56,11 +58,13 @@ export default function Login() {
         </div>
 
         <div>
-          <label className="block text-left text-[8px] sm:text-sm font-normal text-slate-700 dark:text-slate-300 mb-0.5 sm:mb-1">
+          <label htmlFor='password' className="block text-left text-[8px] sm:text-sm font-normal text-slate-700 dark:text-slate-300 mb-0.5 sm:mb-1">
             Mot de passe :
           </label>
           <div className="relative">
             <input
+              id='password'
+              name='password'
               type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -91,7 +95,7 @@ export default function Login() {
         </div>
 
         <button
-          type="submit"
+          type="submit" id='bouton_principal'
           className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-1 sm:py-2 text-[8px] sm:text-base rounded-lg transition-colors cursor-pointer mt-1 sm:mt-2"
         >
           Se connecter
