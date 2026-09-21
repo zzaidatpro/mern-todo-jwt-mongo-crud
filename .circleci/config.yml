@@ -57,7 +57,7 @@ jobs:
           name: Installer les dépendances
           command: |
             npm ci --prefix backend
-            npm ci --prefix frontend
+            npm install --prefix frontend
             npm ci || npm install @playwright/test
 
       - save_cache:
