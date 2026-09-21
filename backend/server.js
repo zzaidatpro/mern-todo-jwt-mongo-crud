@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import dns from 'node:dns';
 import app from './app.js';
+import Collection from 'mongoose/lib/collection.js';
 
 dns.setDefaultResultOrder('ipv4first');
 dns.setServers(['8.8.8.8', '1.1.1.1']);

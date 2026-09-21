@@ -13,12 +13,6 @@ test.describe('--- Tests E2E : Authentification et Gestion des Todos ---', () =>
     await page.fill('input[type="email"], input[name="email"]', uniqueEmail);
     await page.fill('input[type="password"], input[name="password"]', password);
     
-    // Si votre formulaire requiert un champ nom/username :
-    const nameInput = page.locator('input[name="name"], input[name="username"]');
-    if (await nameInput.isVisible()) {
-      await nameInput.fill('Utilisateur Test');
-    }
-
     await page.click('button[type="submit"]');
 
     // Attendre la redirection après inscription (soit vers /login, soit directement /todos)
