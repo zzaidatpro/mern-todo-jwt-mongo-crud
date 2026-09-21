@@ -10,7 +10,7 @@ executors:
   playwright-executor:
     docker:
       # Utilisation de l'image officielle Playwright fournie par Microsoft
-      - image: mcr.microsoft.com/playwright:v1.41.2-jammy
+      - image: mcr.microsoft.com/playwright:v1.63.0-jammy
     working_directory: ~/project
 
 jobs:
