@@ -23,7 +23,7 @@ jobs:
 
       - run:
           name: Installer les dépendances du Backend
-          command: npm ci
+          command: npm install
           working_directory: backend
 
       - save_cache:
