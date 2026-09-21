@@ -11,9 +11,10 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
   webServer: [
-    // 1. Backend Express
+    
     {
-      command: 'npm run start --prefix backend',
+      command: 'npm start',
+      cwd: './backend',
       url: 'http://127.0.0.1:5000',
       reuseExistingServer: !process.env.CI,
       timeout: 120 * 1000,
@@ -23,28 +24,19 @@ export default defineConfig({
         MONGO_URI: process.env.MONGO_URI || '',
       },
     },
-    // 2. Frontend React (Vite)
+    // 2. Frontend React
     {
-      // En CI: on compile et on sert la version preview sur l'IP 127.0.0.1
-      // En local: on lance le serveur de dev classique
       command: process.env.CI
-        ? 'npm run build --prefix frontend && npm run preview --prefix frontend -- --host 127.0.0.1 --port 5173'
-        : 'npm run dev --prefix frontend',
+        ? 'npm run preview --host 127.0.0.1 --port 5173'
+        : 'npm run dev',
+      cwd: './frontend',
       url: 'http://127.0.0.1:5173',
       reuseExistingServer: !process.env.CI,
       timeout: 120 * 1000,
-      stdout: 'pipe',
-      stderr: 'pipe',
     },
   ],
-  // Exécuter uniquement Chromium sur GitHub Actions pour optimiser les ressources
   projects: process.env.CI
-    ? [
-        {
-          name: 'chromium',
-          use: { ...devices['Desktop Chrome'] },
-        },
-      ]
+    ? [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }]
     : [
         { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
         { name: 'firefox', use: { ...devices['Desktop Firefox'] } },

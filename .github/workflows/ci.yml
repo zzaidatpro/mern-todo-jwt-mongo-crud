@@ -25,9 +25,15 @@ jobs:
           cache: 'npm'
           cache-dependency-path: backend/package-lock.json
 
-      - name: Installer les dépendances du Backend
-        run: npm ci
-        working-directory: backend
+      - name: Installer les dépendances
+        run: |
+          cd backend && npm ci
+          cd ../frontend && npm ci
+          cd .. && npm ci || npm install @playwright/test
+
+      - name: Pré-construire le Frontend
+        run: npm run build
+        working-directory: frontend
 
       - name: Exécuter les tests Jest
         run: npm test
