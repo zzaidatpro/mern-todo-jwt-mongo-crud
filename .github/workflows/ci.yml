@@ -21,7 +21,7 @@ jobs:
       - name: Configurer Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24.18.0
+          node-version: 24
           cache: 'npm'
           cache-dependency-path: backend/package-lock.json
 
@@ -33,7 +33,8 @@ jobs:
         run: npm test
         working-directory: backend
         env:
-          JWT_SECRET: 02011978Zaidat@
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
 
   # ----------------------------------------------------
   # JOB 2 : Tests E2E avec Playwright (Multi-navigateurs)
@@ -50,7 +51,7 @@ jobs:
       - name: Configurer Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24.18.0
+          node-version: 24
 
       - name: Installer les dépendances du projet
         run: |
@@ -65,8 +66,8 @@ jobs:
         run: npm exec --prefix frontend -- playwright test
         env:
           CI: true
-          PORT: 5000
-          JWT_SECRET: 02011978Zaidat@
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
 
       - name: Archiver le rapport Playwright en cas d'échec
         if: failure()
