@@ -46,11 +46,12 @@ jobs:
     steps:
       - checkout
 
-      # Changement de clé de cache v1 -> v2 pour forcer la réinitialisation des dépendances
+      # Cache le répertoire de téléchargement npm (~/.npm) plutôt que node_modules
+      # npm ci supprime toujours node_modules avant d'installer, donc le cacher est inutile
       - restore_cache:
           keys:
-            - v2-e2e-deps-{{ checksum "backend/package-lock.json" }}-{{ checksum "frontend/package-lock.json" }}
-            - v2-e2e-deps-
+            - v3-e2e-npm-cache-{{ checksum "backend/package-lock.json" }}-{{ checksum "frontend/package-lock.json" }}
+            - v3-e2e-npm-cache-
 
       - run:
           name: Installer les dépendances Backend et Frontend
@@ -59,15 +60,13 @@ jobs:
             npm ci --prefix frontend
 
       - save_cache:
-          key: v2-e2e-deps-{{ checksum "backend/package-lock.json" }}-{{ checksum "frontend/package-lock.json" }}
+          key: v3-e2e-npm-cache-{{ checksum "backend/package-lock.json" }}-{{ checksum "frontend/package-lock.json" }}
           paths:
-            - backend/node_modules
-            - frontend/node_modules
+            - ~/.npm
 
       - run:
-          name: Reconstruire les modules natifs Linux (Vite/Rolldown)
-          command: npm rebuild
-          working_directory: frontend
+          name: Installer le binding natif Linux de Rolldown
+          command: npm --prefix frontend install @rolldown/binding-linux-x64-gnu --no-save
 
       - run:
           name: Installer les dépendances système et navigateurs Playwright
