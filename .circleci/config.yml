@@ -3,7 +3,6 @@ version: 2.1
 executors:
   node-executor:
     docker:
-      # Passage à v20.18.0 (ou v24.0.0) pour inclure util.styleText (disponible dès v20.12.0)
       - image: cimg/node:20.18.0
     working_directory: ~/project
 
@@ -23,7 +22,7 @@ jobs:
 
       - run:
           name: Installer les dépendances du Backend
-          command: npm install
+          command: npm ci
           working_directory: backend
 
       - save_cache:
@@ -47,29 +46,27 @@ jobs:
     steps:
       - checkout
 
+      # Restauration du cache basé UNIQUEMENT sur backend et frontend
       - restore_cache:
           keys:
-            - v1-root-deps-{{ checksum "package-lock.json" }}
-            - v1-backend-deps-{{ checksum "backend/package-lock.json" }}
-            - v1-frontend-deps-{{ checksum "frontend/package-lock.json" }}
+            - v1-e2e-deps-{{ checksum "backend/package-lock.json" }}-{{ checksum "frontend/package-lock.json" }}
+            - v1-e2e-deps-
 
       - run:
-          name: Installer les dépendances
+          name: Installer les dépendances Backend et Frontend
           command: |
             npm ci --prefix backend
             npm ci --prefix frontend
-            npm ci || npm install @playwright/test
 
       - save_cache:
-          key: v1-root-deps-{{ checksum "package-lock.json" }}
+          key: v1-e2e-deps-{{ checksum "backend/package-lock.json" }}-{{ checksum "frontend/package-lock.json" }}
           paths:
-            - node_modules
             - backend/node_modules
             - frontend/node_modules
 
       - run:
           name: Installer les dépendances système et navigateurs Playwright
-          command: npx playwright install --with-deps chromium
+          command: npx --prefix frontend playwright install --with-deps chromium
 
       - run:
           name: Pré-construire le Frontend (Vite)
@@ -79,6 +76,7 @@ jobs:
       - run:
           name: Exécuter les tests Playwright E2E
           command: npx playwright test
+          working_directory: frontend
           environment:
             CI: "true"
             PORT: "5000"
@@ -86,7 +84,7 @@ jobs:
             MONGO_URI: $MONGO_URI
 
       - store_artifacts:
-          path: playwright-report
+          path: frontend/playwright-report
           destination: playwright-report
 
 # ----------------------------------------------------
