@@ -46,11 +46,11 @@ jobs:
     steps:
       - checkout
 
-      # Restauration du cache basé UNIQUEMENT sur backend et frontend
+      # Changement de clé de cache v1 -> v2 pour forcer la réinitialisation des dépendances
       - restore_cache:
           keys:
-            - v1-e2e-deps-{{ checksum "backend/package-lock.json" }}-{{ checksum "frontend/package-lock.json" }}
-            - v1-e2e-deps-
+            - v2-e2e-deps-{{ checksum "backend/package-lock.json" }}-{{ checksum "frontend/package-lock.json" }}
+            - v2-e2e-deps-
 
       - run:
           name: Installer les dépendances Backend et Frontend
@@ -59,10 +59,15 @@ jobs:
             npm ci --prefix frontend
 
       - save_cache:
-          key: v1-e2e-deps-{{ checksum "backend/package-lock.json" }}-{{ checksum "frontend/package-lock.json" }}
+          key: v2-e2e-deps-{{ checksum "backend/package-lock.json" }}-{{ checksum "frontend/package-lock.json" }}
           paths:
             - backend/node_modules
             - frontend/node_modules
+
+      - run:
+          name: Reconstruire les modules natifs Linux (Vite/Rolldown)
+          command: npm rebuild
+          working_directory: frontend
 
       - run:
           name: Installer les dépendances système et navigateurs Playwright
