@@ -20,12 +20,12 @@ export default defineConfig({
       stderr: 'pipe',
     },
     {
-      command: 'npm run dev --prefix frontend -- --host 127.0.0.1',
+      command: process.env.CI 
+        ? 'npm run build --prefix frontend && npm run preview --prefix frontend -- --port 5173 --host 127.0.0.1'
+        : 'npm run dev --prefix frontend',
       url: 'http://127.0.0.1:5173',
       reuseExistingServer: !process.env.CI,
       timeout: 120 * 1000,
-      stdout: 'pipe',
-      stderr: 'pipe',
     },
   ],
 

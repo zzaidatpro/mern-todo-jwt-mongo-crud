@@ -63,9 +63,10 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Exécuter les tests Playwright
-        run: npm exec --prefix frontend -- playwright test
+        run: npx playwright test
         env:
           CI: true
+          PORT : 5000
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           MONGO_URI: ${{ secrets.MONGO_URI }}
 
