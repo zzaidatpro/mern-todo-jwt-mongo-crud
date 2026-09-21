@@ -11,26 +11,34 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
   webServer: [
+    // 1. Backend Express
     {
       command: 'npm run start --prefix backend',
       url: 'http://127.0.0.1:5000',
       reuseExistingServer: !process.env.CI,
       timeout: 120 * 1000,
-      stdout: 'pipe',
-      stderr: 'pipe',
+      env: {
+        PORT: '5000',
+        JWT_SECRET: process.env.JWT_SECRET || 'secret_de_test',
+        MONGO_URI: process.env.MONGO_URI || '',
+      },
     },
+    // 2. Frontend React (Vite)
     {
-      command: process.env.CI 
-        ? 'npm run build --prefix frontend && npm run preview --prefix frontend -- --port 5173 --host 127.0.0.1'
+      // En CI: on compile et on sert la version preview sur l'IP 127.0.0.1
+      // En local: on lance le serveur de dev classique
+      command: process.env.CI
+        ? 'npm run build --prefix frontend && npm run preview --prefix frontend -- --host 127.0.0.1 --port 5173'
         : 'npm run dev --prefix frontend',
       url: 'http://127.0.0.1:5173',
       reuseExistingServer: !process.env.CI,
       timeout: 120 * 1000,
+      stdout: 'pipe',
+      stderr: 'pipe',
     },
   ],
-
-  // Sur GitHub Actions (CI), on exécute uniquement Chromium pour éviter les ralentissements WebKit/Firefox
-  projects: process.env.CI 
+  // Exécuter uniquement Chromium sur GitHub Actions pour optimiser les ressources
+  projects: process.env.CI
     ? [
         {
           name: 'chromium',
@@ -38,17 +46,8 @@ export default defineConfig({
         },
       ]
     : [
-        {
-          name: 'chromium',
-          use: { ...devices['Desktop Chrome'] },
-        },
-        {
-          name: 'firefox',
-          use: { ...devices['Desktop Firefox'] },
-        },
-        {
-          name: 'webkit',
-          use: { ...devices['Desktop Safari'] },
-        },
+        { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+        { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+        { name: 'webkit', use: { ...devices['Desktop Safari'] } },
       ],
 });

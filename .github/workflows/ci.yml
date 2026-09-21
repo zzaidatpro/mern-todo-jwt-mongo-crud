@@ -8,7 +8,7 @@ on:
 
 jobs:
   # ----------------------------------------------------
-  # JOB 1 : Tests Backend avec Jest & MongoDB In-Memory
+  # JOB 1 : Tests Backend avec Jest
   # ----------------------------------------------------
   backend-tests:
     name: 🧪 Tests Backend (Jest)
@@ -21,7 +21,7 @@ jobs:
       - name: Configurer Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 20
           cache: 'npm'
           cache-dependency-path: backend/package-lock.json
 
@@ -37,11 +37,11 @@ jobs:
           MONGO_URI: ${{ secrets.MONGO_URI }}
 
   # ----------------------------------------------------
-  # JOB 2 : Tests E2E avec Playwright (Multi-navigateurs)
+  # JOB 2 : Tests E2E avec Playwright
   # ----------------------------------------------------
   e2e-tests:
     name: 🎭 Tests E2E (Playwright)
-    needs: backend-tests # S'exécute uniquement si le job Backend réussit
+    needs: backend-tests
     runs-on: ubuntu-latest
 
     steps:
@@ -51,22 +51,37 @@ jobs:
       - name: Configurer Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 20
 
-      - name: Installer les dépendances du projet
+      - name: Installer les dépendances (Backend, Frontend, Racine)
         run: |
           npm ci --prefix backend
           npm ci --prefix frontend
           npm ci || npm install @playwright/test
 
+      - name: Pré-construire le Frontend (Evite le timeout Vite)
+        run: npm run build --prefix frontend
+
+      - name: Cache des navigateurs Playwright
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
+
       - name: Installer les navigateurs Playwright
-        run: npx playwright install --with-deps
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Installer les dépendances système Playwright si cache actif
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
 
       - name: Exécuter les tests Playwright
         run: npx playwright test
         env:
           CI: true
-          PORT : 5000
+          PORT: 5000
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           MONGO_URI: ${{ secrets.MONGO_URI }}
 
