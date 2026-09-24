@@ -7,7 +7,7 @@ import todoRoutes from './routes/todosRoute.js';
 
 const app = express();
 app.use(cors({
-  origin: 'http://localhost:5173' || 'https://todo-jwt-mongo.vercel.app/', credentials: true                
+  origin: 'http://localhost:5173' || 'https://todo-jwt-mongo.vercel.app', credentials: true                
 }));
 
 app.use(cookieParser());
