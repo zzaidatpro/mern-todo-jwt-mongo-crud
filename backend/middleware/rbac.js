@@ -1,27 +1,24 @@
-import fs from 'fs';
-import path from 'path';
-
-// Chargement du fichier JSON contenant les permissions
-const rolesConfig = JSON.parse(
-  fs.readFileSync(path.resolve('./config/roles.json'), 'utf-8')
-);
-
+// middleware/rbac.js
 export const checkPermission = (requiredPermission) => {
   return (req, res, next) => {
-    // req.user est déjà défini par votre authMiddleware
-    const userRole = req.user?.role || 'user';
-    const roleDetails = rolesConfig.roles[userRole];
-
-    if (!roleDetails) {
-      return res.status(403).json({ message: 'Accès refusé : Rôle inconnu.' });
+    // 1. Vérifie si l'utilisateur est présent (injecté par authMiddleware)
+    if (!req.user) {
+      return res.status(401).json({ message: 'Non authentifié.' });
     }
 
-    if (!roleDetails.permissions.includes(requiredPermission)) {
-      return res.status(403).json({ 
-        message: `Accès refusé : Droits insuffisants (${requiredPermission} requis).` 
-      });
+    // 2. Si l'utilisateur est ADMIN, il a TOUS les droits automatiquement
+    if (req.user.role === 'admin') {
+      return next();
     }
 
-    next();
+    // 3. Sinon, on vérifie ses permissions granulaires s'il en a
+    if (Array.isArray(req.user.permissions) && req.user.permissions.includes(requiredPermission)) {
+      return next();
+    }
+
+    // 4. Accès refusé
+    return res.status(403).json({
+      message: `Accès refusé : Droits insuffisants (${requiredPermission} requis).`,
+    });
   };
 };

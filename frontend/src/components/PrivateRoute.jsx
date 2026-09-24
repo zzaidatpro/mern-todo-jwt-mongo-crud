@@ -1,41 +1,35 @@
-import { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
-import axios from 'axios';
+import { useState, useEffect } from "react";
+import { Navigate } from "react-router-dom";
+import { authService } from "../services/authService";
 
-const api = axios.create({ baseURL: 'http://localhost:5000/api', withCredentials: true });
-
-export default function AdminRoute({ children }) {
-  const [status, setStatus] = useState({ loading: true, isAdmin: false });
+export default function PrivateRoute({ children }) {
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   useEffect(() => {
-    const verifyAdmin = async () => {
-      try {
-        const res = await api.get('/auth/me');
-        // Vérifie si l'utilisateur possède le rôle 'admin'
-        if (res.data.role === 'admin') {
-          setStatus({ loading: false, isAdmin: true });
-        } else {
-          setStatus({ loading: false, isAdmin: false });
-        }
-      } catch (err) {
-        setStatus({ loading: false, isAdmin: false });
-      }
-    };
+    let isMounted = true;
 
-    verifyAdmin();
+    authService
+      .getMe()
+      .then(() => {
+        if (isMounted) setIsAuthenticated(true);
+      })
+      .catch(() => {
+        if (isMounted) setIsAuthenticated(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  if (status.loading) {
+  if (isAuthenticated === null) {
     return (
-      <div className="w-full min-h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300">
-        <p>Vérification des droits d'accès...</p>
+      <div className="flex flex-col items-center justify-center py-12 gap-3">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        <p className="text-xs text-slate-500">Vérification de la session...</p>
       </div>
     );
   }
 
-  if (!status.isAdmin) {
-    return <Navigate to="/" replace />;
-  }
-
-  return children;
+  return isAuthenticated ? children : <Navigate to="/auth/login" replace />;
 }

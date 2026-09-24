@@ -1,19 +1,23 @@
 import jwt from 'jsonwebtoken';
 
 export default function authMiddleware(req, res, next) {
-  const authHeader = req.headers.authorization;
+  // 1. Extraction du token depuis le cookie httpOnly (ou fallback sur le header Authorization si besoin)
+  const token = req.cookies?.token
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  // 2. Vérification de la présence du token
+  if (!token) {
     return res.status(401).json({ message: 'Accès non autorisé, jeton manquant' });
   }
 
-  const token = authHeader.split(' ')[1];
-
   try {
+    // 3.  Vérification du JWT avec la clé secrète
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Doit contenir { id: "..." } ou { _id: "..." }
+    
+    // Injecte les données décodées (ex: { id: "..." }) dans req.user
+    req.user = decoded; 
     next();
   } catch (err) {
-    res.status(401).json({ message: 'Jeton invalide ou expiré' });
+    console.error('authMiddleware error:', err.message);
+    return res.status(401).json({ message: 'Jeton invalide ou expiré' });
   }
 }

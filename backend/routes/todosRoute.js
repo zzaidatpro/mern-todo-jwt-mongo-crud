@@ -6,15 +6,17 @@ import {
   deleteTodo 
 } from '../controllers/todoController.js';
 import authMiddleware from '../middleware/auth.js';
+import { checkPermission } from '../middleware/rbac.js';
 
 const router = express.Router();
 
-// Appliquer le middleware d'authentification sur l'ensemble des routes Todo
+// 1. Authentification globale : extrait le token httpOnly et définit req.user
 router.use(authMiddleware);
 
-router.get('/', getTodos);
-router.post('/', createTodo);
-router.put('/:id', updateTodo);
-router.delete('/:id', deleteTodo);
+// 2. Routes CRUD protégées par rôles et permissions (RBAC)
+router.get('/', authMiddleware, getTodos);
+router.post('/', authMiddleware, createTodo);
+router.put('/:id', authMiddleware, updateTodo);
+router.delete('/:id', authMiddleware, deleteTodo);
 
 export default router;
