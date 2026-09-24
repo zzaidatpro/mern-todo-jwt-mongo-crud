@@ -7,7 +7,7 @@ import todoRoutes from './routes/todosRoute.js';
 
 const app = express();
 app.use(cors({
-  origin: 'http://localhost:5173', credentials: true                
+  origin: 'http://localhost:5173' || 'https://mern-todo-jwt-mongo-crud.onrender.com', credentials: true                
 }));
 
 app.use(cookieParser());
