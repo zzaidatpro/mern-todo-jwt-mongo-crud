@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api' || 'https://mern-todo-jwt-mongo-crud.onrender.com/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api' || 'https://todo-jwt-mongo.vercel.app/api',
   withCredentials: true, // Crucial pour l'envoi/réception automatique des cookies HttpOnly
 });
 
