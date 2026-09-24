@@ -117,7 +117,6 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
-// Supprimer un utilisateur en s'assurant que ce n'est PAS un administrateur
 export const deleteUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);

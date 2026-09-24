@@ -13,7 +13,7 @@ const router = express.Router();
 // 1. Authentification globale : extrait le token httpOnly et définit req.user
 router.use(authMiddleware);
 
-// 2. Routes CRUD protégées par rôles et permissions (RBAC)
+// 2. Routes CRUD protégées 
 router.get('/', authMiddleware, getTodos);
 router.post('/', authMiddleware, createTodo);
 router.put('/:id', authMiddleware, updateTodo);

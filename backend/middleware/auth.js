@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 
 export default function authMiddleware(req, res, next) {
-  // 1. Extraction du token depuis le cookie httpOnly (ou fallback sur le header Authorization si besoin)
+  // 1. Récupération du token depuis les cookies
   const token = req.cookies?.token
 
   // 2. Vérification de la présence du token

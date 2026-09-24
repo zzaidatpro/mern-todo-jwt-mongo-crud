@@ -7,6 +7,8 @@ export default function About() {
       <p className="hover:text-indigo-600 dark:hover:text-indigo-100 transition-colors">
         Cette application de gestion de tâches est une démonstration d'architecture full-stack 
         basée sur la pile **MERN** (MongoDB, Express, React, Node.js) structurée avec des ES Modules.
+        s'appuyant sur une authentification sécurisée par jetons JWT pour protéger les routes et les données des utilisateurs.
+        http-only cookies sont utilisés pour stocker les jetons d'accès, garantissant ainsi une sécurité renforcée contre les attaques XSS.
                                                                                                   
       </p>
 
@@ -19,7 +21,7 @@ export default function About() {
             Fonctionnalités clés :          </h3>
         <ul className="list-disc list-inside space-y-2 text-sm font-medium text-slate-900 dark:text-slate-100 drop-shadow-sm text-left"> <li>Authentification sécurisée par jetons JWT</li>
           <li>API RESTful construite avec Express et Mongoose</li>
-          <li>Interface réactive développée avec React et Vite</li>
+          <li>Interface réactive développée avec React et Vite </li>
           <li>Design moderne et adaptatif avec Tailwind CSS</li>
         </ul>
       </div>
