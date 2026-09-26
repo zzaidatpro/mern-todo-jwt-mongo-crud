@@ -1,23 +1,23 @@
-import api from '../api/axios';
+import API from '../api/axios';
 
 export const todoService = {
   getTodos: async () => {
-    const response = await api.get('/todos');
+    const response = await API.get('/todos');
     return response.data;
   },
 
   createTodo: async (todoData) => {
-    const response = await api.post('/todos', todoData);
+    const response = await API.post('/todos', todoData);
     return response.data;
   },
 
   updateTodo: async (id, updates) => {
-    const response = await api.put(`/todos/${id}`, updates);
+    const response = await API.put(`/todos/${id}`, updates);
     return response.data;
   },
 
   deleteTodo: async (id) => {
-    const response = await api.delete(`/todos/${id}`);
+    const response = await API.delete(`/todos/${id}`);
     return response.data;
   },
 };
